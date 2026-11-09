@@ -1,6 +1,42 @@
 <!DOCTYPE html>
+<!--
+  ==========================================================================
+  FILE: index.html — Ricardo Moreno, IT Service Desk Technician (resume site)
+  --------------------------------------------------------------------------
+  PURPOSE
+    Single-page resume website. Pure HTML + CSS only — there is NO
+    JavaScript anywhere in this file. All styling lives in styles.css.
+    Every visual block below is paired with a matching block in styles.css
+    (look for the section banners there; class names are shared).
+
+  HOW TO EDIT
+    - Change visible text directly in the matching section below; the class
+      names on each element are the hooks styles.css uses, so keep them.
+    - Keep index.html and styles.css in the same folder — the page loads
+      its stylesheet with a relative link (see <head>).
+
+  PAGE MAP (in order)
+    <head> ............ metadata, tab title, stylesheet link
+    Theme toggle ...... hidden checkbox that flips light/dark themes
+    .page ............. wrapper the dark theme restyles (see styles.css)
+    Header / Nav ...... sticky bar: logo, section links, theme toggle label
+    Hero .............. name, role, intro paragraph, Role Snapshot card
+    01 Summary ........ professional summary (anchor: #about)
+    02 By the Numbers . KPI metric cards (anchor: #data)
+    03 Skills ......... competency cards + depth meters + matrix (#skills)
+    04 Experience ..... job timeline (anchor: #experience)
+    05 Projects ....... project cards with Focus/Stack/Outcome (#projects)
+    06 Education ...... degree card (anchor: #education)
+    Contact ........... email / LinkedIn / GitHub buttons (anchor: #contact)
+    Footer ............ copyright line
+  ==========================================================================
+-->
 <html lang="en">
 <head>
+  <!-- ==== HEAD: document metadata (not displayed on the page) ====
+       charset/viewport keep text and layout correct on phones;
+       the description is what search engines show; the link loads
+       styles.css, which contains 100% of the visual design. -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Ricardo Moreno — IT Service Desk Technician at Medtronic / MiniMed since 2020. Data view: experience metrics, competency matrix, skill depth, and project outcomes across IT support, Microsoft 365 and Copilot, Linux, virtualization, PowerShell automation, and IoT.">
@@ -9,11 +45,22 @@
 </head>
 <body>
 
-  <!-- Theme toggle (pure CSS, no JavaScript): checking this box switches the page wrapper below to the dark theme. -->
+  <!-- ==== THEME TOGGLE INPUT (hidden) ====
+       Pure-CSS dark mode, no JavaScript: this checkbox must stay directly
+       BEFORE the .page wrapper, because styles.css switches themes with
+       the selector "#theme-toggle:checked ~ .page". The visible on/off
+       control is the <label> for this box inside the nav bar below. -->
   <input type="checkbox" id="theme-toggle" class="theme-toggle-input" aria-label="Toggle dark mode">
 
+  <!-- ==== PAGE WRAPPER (.page) ====
+       Wraps the entire visible page. The dark theme works by redefining
+       the CSS color variables on this element when the toggle is on. -->
   <div class="page">
 
+  <!-- ==== HEADER / NAVIGATION (sticky, stays at the top on scroll) ====
+       Logo links back to the top (#top); each nav link jumps to a section
+       anchor further down this file; the last item is the theme toggle
+       label (its two spans swap "Dark"/"Light" text per theme). -->
   <header class="site-header">
     <nav class="nav container" aria-label="Main navigation">
       <a class="logo" href="#top">RM<span>.</span></a>
@@ -35,9 +82,17 @@
     </nav>
   </header>
 
+  <!-- ==== MAIN CONTENT ====
+       id="top" is the anchor the logo and "back to top" links point to.
+       Sections appear in the same order as the nav links above. -->
   <main id="top">
 
-    <!-- ============ HERO ============ -->
+    <!-- ============ HERO (top banner) ============
+         Left column (.hero-text): eyebrow tagline, name (h1), job title
+         (h2), one-paragraph intro, and two call-to-action buttons.
+         Right column (.hero-card.snapshot): the "Role Snapshot" card —
+         a definition list of employer / role / tenure / degree, followed
+         by skill tag pills. Styled by the "Hero" block in styles.css. -->
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-text">
@@ -72,7 +127,10 @@
       </div>
     </section>
 
-    <!-- ============ 01 SUMMARY ============ -->
+    <!-- ============ 01 SUMMARY (anchor: #about) ============
+         One-paragraph professional summary in a plain section:
+         the orange numbered label (.section-index) and underlined title
+         (.section-title) repeat on every numbered section below. -->
     <section id="about" class="section">
       <div class="container">
         <p class="section-index">01 &middot; Overview</p>
@@ -90,7 +148,11 @@
       </div>
     </section>
 
-    <!-- ============ 02 BY THE NUMBERS ============ -->
+    <!-- ============ 02 BY THE NUMBERS (anchor: #data) ============
+         KPI band: six metric cards in a grid (.kpi-grid). Each card is
+         number (.kpi-number) + label (.kpi-label) + note (.kpi-note).
+         The .section-alt class gives this band the alternate background.
+         To change a metric, edit the number and label text in its card. -->
     <section id="data" class="section section-alt">
       <div class="container">
         <p class="section-index">02 &middot; Metrics</p>
@@ -130,13 +192,25 @@
       </div>
     </section>
 
-    <!-- ============ 03 SKILLS ============ -->
+    <!-- ============ 03 SKILLS (anchor: #skills) ============
+         Two parts:
+         (a) Six skill cards in a grid (.skills-grid) — one card per
+             competency area, each with a bullet list of abilities.
+         (b) The Competency Matrix table below the cards (documented at
+             the table itself). -->
     <section id="skills" class="section">
       <div class="container">
         <p class="section-index">03 &middot; Capabilities</p>
         <h3 class="section-title">Core Competencies</h3>
         <div class="skills-grid">
 
+          <!-- SKILL CARD pattern (all six cards follow this structure):
+               <h4> area name, <ul> ability bullets, then a DEPTH METER:
+               .meter holds five .seg segments — segments with class "on"
+               are filled orange, the rest stay pale. Set the rating by
+               choosing how many segments get "on", then update the
+               aria-label ("Experience depth: N out of 5") and the
+               .meter-label text ("Depth N/5 · ...") to match. -->
           <article class="skill-card">
             <h4>IT Support &amp; Service Desk</h4>
             <ul>
@@ -222,6 +296,14 @@
 
         </div>
 
+        <!-- COMPETENCY MATRIX (part b of Skills):
+             A data table — one row per competency, columns Competency /
+             Tools & Platforms / Context / Evidence. The Context cell uses
+             a pill: .ctx-work (solid orange) = applied at Medtronic,
+             .ctx-lab (outline) = self-directed / lab. .table-wrap lets
+             the table scroll sideways on narrow screens instead of
+             breaking the layout. The .table-note under it explains the
+             depth ratings shown on the cards above. -->
         <h4 class="subsection-title">Competency Matrix</h4>
         <div class="table-wrap">
           <table class="matrix">
@@ -283,12 +365,19 @@
       </div>
     </section>
 
-    <!-- ============ 04 EXPERIENCE ============ -->
+    <!-- ============ 04 EXPERIENCE (anchor: #experience) ============
+         Timeline layout: each .job is one role — the orange dot and
+         vertical line come from the .job styles in styles.css.
+         Job pattern: .job-header (title + date pill .job-meta),
+         .job-company (employer line; only the first job uses it), and
+         .job-points (achievement bullets). Add a role by copying a
+         whole <article class="job"> block. -->
     <section id="experience" class="section section-alt">
       <div class="container">
         <p class="section-index">04 &middot; Timeline</p>
         <h3 class="section-title">Experience</h3>
 
+        <!-- JOB 1: current role, Medtronic / MiniMed (2020 — Present) -->
         <article class="job">
           <div class="job-header">
             <h4>IT Service Desk Technician</h4>
@@ -305,6 +394,7 @@
           </ul>
         </article>
 
+        <!-- JOB 2: self-directed learning (no employer line) -->
         <article class="job">
           <div class="job-header">
             <h4>Independent Technical Development</h4>
@@ -321,13 +411,18 @@
       </div>
     </section>
 
-    <!-- ============ 05 PROJECTS ============ -->
+    <!-- ============ 05 PROJECTS (anchor: #projects) ============
+         Three dark cards in a grid (.projects-grid). Card pattern:
+         .project-tag (category line), <h4> project name, description
+         paragraph, then .project-meta — a definition list with the
+         three data rows Focus / Stack / Outcome (dt = label, dd = value). -->
     <section id="projects" class="section">
       <div class="container">
         <p class="section-index">05 &middot; Output</p>
         <h3 class="section-title">Selected Projects</h3>
         <div class="projects-grid">
 
+          <!-- PROJECT CARD pattern — see the section comment above. -->
           <article class="project-card">
             <p class="project-tag">PowerShell &bull; Automation</p>
             <h4>Network Host Information Scanner</h4>
@@ -377,7 +472,9 @@
       </div>
     </section>
 
-    <!-- ============ 06 EDUCATION ============ -->
+    <!-- ============ 06 EDUCATION (anchor: #education) ============
+         Single card (.education-card): degree title plus a short
+         paragraph. The orange left border marks it as a credential. -->
     <section id="education" class="section section-alt">
       <div class="container">
         <p class="section-index">06 &middot; Credentials</p>
@@ -392,7 +489,11 @@
       </div>
     </section>
 
-    <!-- ============ CONTACT ============ -->
+    <!-- ============ CONTACT (anchor: #contact) ============
+         Closing call-to-action band on a dark gradient (.section-contact).
+         Three buttons (.contact-links): email (mailto: link), LinkedIn,
+         and GitHub. The LinkedIn href is still a "#" placeholder — paste
+         the real profile URL there when available (see the TODO note). -->
     <section id="contact" class="section section-contact">
       <div class="container contact-inner">
         <h3>Let's connect</h3>
@@ -411,13 +512,15 @@
 
   </main>
 
+  <!-- ==== FOOTER ====
+       One-line copyright bar. Styled by the "Footer" block in styles.css. -->
   <footer class="site-footer">
     <div class="container">
       <p>&copy; Ricardo Moreno — IT Service Desk Technician. Built with HTML &amp; CSS only.</p>
     </div>
   </footer>
 
-  </div><!-- /.page -->
+  </div><!-- /.page — closes the page wrapper opened after the theme toggle -->
 
 </body>
 </html>

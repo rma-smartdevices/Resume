@@ -1,11 +1,46 @@
 /* ============================================================
-   Ricardo Moreno — IT Resume Website
-   Pure CSS. No JavaScript, no frameworks.
-   Palette: cream + ink black, with burnt orange highlights.
-   (Variable names --navy/--teal are kept from the first version;
-   --navy is now the ink-black tone and --teal the burnt orange.)
+   FILE: styles.css — Ricardo Moreno, IT Resume Website
+   ------------------------------------------------------------
+   PURPOSE
+     All styling for index.html. Pure CSS: no JavaScript, no
+     frameworks, no build step. The browser just loads this file
+     from the <link> in index.html's <head>.
+
+   HOW THE FILE IS ORGANIZED
+     Blocks appear in roughly the order the page is built:
+       1. Theme variables (:root) — every color/size used below
+       2. Dark theme + theme-toggle mechanics (pure CSS, no JS)
+       3. Base/reset, layout container, link defaults
+       4. Header / navigation
+       5. Hero, buttons, generic sections
+       6. Skills, Experience, Projects, Education, Contact, Footer
+       7. Data components: KPI cards, depth meters, matrix table,
+          Role Snapshot card, project data rows
+       8. Responsive breakpoints (900px, then 600px) — always last,
+          so they override the desktop rules above them.
+
+   HOW TO MAKE COMMON CHANGES
+     - Recolor the whole site: edit the variables in :root (light)
+       and in the "#theme-toggle:checked ~ .page" block (dark).
+       Components never hard-code theme colors; they use var(--…).
+     - Palette: cream background + ink-black text, burnt orange
+       highlights. (Variable names --navy / --teal are kept from the
+       first design: --navy is now the ink-black tone, --teal the
+       burnt orange.)
+     - Change spacing/roundness: --radius, and the padding values
+       in the .section / card blocks.
    ============================================================ */
 
+/* ---------- 1. THEME VARIABLES (light theme is the default) ----------
+   Every component below references these variables instead of raw
+   colors, which is what makes the one-switch dark theme possible.
+   --navy/--navy-2: dark bands (header, hero, project cards).
+   --teal/--teal-dark: burnt-orange accent and its hover state.
+   --accent: orange used on light backgrounds (links, big numbers).
+   --heading/--ink/--muted: heading, body, and secondary text colors.
+   --bg/--bg-alt: page background and alternating section background.
+   --line: borders/dividers.  --card: card background.
+   --radius/--shadow/--font: shared corner radius, card shadow, font stack. */
 :root {
   --navy: #171310;
   --navy-2: #241a10;
@@ -24,9 +59,14 @@
   --font: "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
 }
 
-/* ---------- Dark theme (pure CSS toggle, no JavaScript) ----------
-   The hidden checkbox sits before .page in the HTML; when it is
-   checked, the variables below restyle the whole page dark. */
+/* ---------- 2. Dark theme (pure CSS toggle, no JavaScript) ----------
+   Mechanism: index.html places a hidden checkbox (#theme-toggle)
+   immediately before the .page wrapper. When the box is checked, this
+   block swaps the theme variables ON .page, and every component that
+   reads var(--…) turns dark at once. The nav label is what the visitor
+   actually clicks — its "for" attribute checks/unchecks the box.
+   Note: the choice is NOT remembered between page loads; that would
+   require JavaScript, which this site deliberately avoids. */
 #theme-toggle:checked ~ .page {
   --accent: #f2a65e;
   --heading: #faf3e3;
@@ -39,6 +79,8 @@
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
+/* The .page wrapper paints the themed background/text color for the
+   whole page and eases the color change when the theme flips. */
 .page {
   background: var(--bg);
   color: var(--ink);
@@ -49,12 +91,15 @@
 /* Keep the area outside .page (e.g. overscroll) dark too, where :has is supported. */
 body:has(> #theme-toggle:checked) { background: #14100b; }
 
+/* Hide the real checkbox without removing it from the tab order flow:
+   it stays functional because the nav <label> toggles it. */
 .theme-toggle-input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
 
+/* The visible pill button in the nav ("🌙 Dark" / "☀️ Light"). */
 .theme-toggle {
   cursor: pointer;
   display: inline-block;
@@ -68,14 +113,21 @@ body:has(> #theme-toggle:checked) { background: #14100b; }
 }
 .theme-toggle:hover { background: rgba(255, 255, 255, 0.12); }
 
+/* Swap the pill's label text with the theme: in light mode it offers
+   "Dark", in dark mode it offers "Light". */
 .toggle-to-light { display: none; }
 #theme-toggle:checked ~ .page .toggle-to-dark { display: none; }
 #theme-toggle:checked ~ .page .toggle-to-light { display: inline; }
+/* Keyboard users still get a visible focus ring on the pill even
+   though the real checkbox is invisible. */
 #theme-toggle:focus-visible ~ .page .theme-toggle { outline: 2px solid var(--teal); outline-offset: 2px; }
 
+/* ---------- 3. Base / reset ----------
+   Universal reset: no default margins/padding, and border-box sizing
+   so padding never widens an element past its set width. */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; } /* smooth-scroll for the nav anchor jumps */
 
 body {
   font-family: var(--font);
@@ -85,15 +137,20 @@ body {
   font-size: 17px;
 }
 
+/* Centered content column: at most 1080px wide, otherwise 92% of
+   the screen, auto margins keep it centered. Used by every section. */
 .container {
   width: min(1080px, 92%);
   margin: 0 auto;
 }
 
-a { color: var(--accent); text-decoration: none; }
+a { color: var(--accent); text-decoration: none; } /* links are accent-colored, underlined only on hover */
 a:hover { text-decoration: underline; }
 
-/* ---------- Header / Nav ---------- */
+/* ---------- 4. Header / Navigation ----------
+   .site-header uses position: sticky so the bar stays pinned to the
+   top while scrolling; its background is the fixed ink tone (--navy),
+   so it looks the same in both themes. */
 .site-header {
   position: sticky;
   top: 0;
@@ -102,6 +159,7 @@ a:hover { text-decoration: underline; }
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
 }
 
+/* Nav row: logo on the left, link list on the right (flexbox). */
 .nav {
   display: flex;
   align-items: center;
@@ -109,6 +167,7 @@ a:hover { text-decoration: underline; }
   padding: 0.9rem 0;
 }
 
+/* "RM." wordmark; the period is accent orange via the inner <span>. */
 .logo {
   font-size: 1.6rem;
   font-weight: 800;
@@ -118,6 +177,8 @@ a:hover { text-decoration: underline; }
 .logo span { color: var(--teal); }
 .logo:hover { text-decoration: none; }
 
+/* Horizontal link list; wraps onto two lines on narrow screens.
+   The Contact link is restyled as an orange pill by .nav-cta below. */
 .nav-links {
   display: flex;
   flex-wrap: wrap;
@@ -140,7 +201,12 @@ a:hover { text-decoration: underline; }
 }
 .nav-links a.nav-cta:hover { background: var(--teal-dark); }
 
-/* ---------- Hero ---------- */
+/* ---------- 5. Hero ----------
+   Full-width dark gradient band under the header. .hero-grid lays
+   out two columns (intro text 1.5fr, snapshot card 1fr) that stack
+   vertically under 900px (see the Responsive block at the bottom).
+   The colors here are fixed whites/creams because the band is dark
+   in BOTH themes. */
 .hero {
   background: linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, #8a3c00 100%);
   color: #ffffff;
@@ -154,6 +220,7 @@ a:hover { text-decoration: underline; }
   align-items: center;
 }
 
+/* Small orange caps tagline above the name. */
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 0.18em;
@@ -179,8 +246,13 @@ a:hover { text-decoration: underline; }
 .hero-summary { color: #f3ead9; max-width: 34rem; }
 .hero-summary strong { color: #ffffff; }
 
-.hero-actions { margin-top: 1.8rem; display: flex; gap: 0.9rem; flex-wrap: wrap; }
+.hero-actions { margin-top: 1.8rem; display: flex; gap: 0.9rem; flex-wrap: wrap; } /* row of CTA buttons under the intro */
 
+/* Translucent panel on the hero gradient. The base two-column grid
+   here is overridden to a single column by .snapshot in the data
+   components block below (the card now holds the Role Snapshot list
+   instead of the original four stat blocks; .stat-number/.stat-label
+   remain defined for compatibility but are unused). */
 .hero-card {
   background: rgba(255, 255, 255, 0.07);
   border: 1px solid rgba(255, 255, 255, 0.16);
@@ -201,7 +273,11 @@ a:hover { text-decoration: underline; }
 
 .stat-label { font-size: 0.88rem; color: #ded0b2; }
 
-/* ---------- Buttons ---------- */
+/* ---------- Buttons ----------
+   Pill-shaped links shared by the hero and contact sections.
+   .btn-primary = solid orange; .btn-outline = transparent with a
+   white border (for dark backgrounds); .btn-outline.light softens
+   that border, used on the contact band. */
 .btn {
   display: inline-block;
   padding: 0.75rem 1.5rem;
@@ -219,7 +295,12 @@ a:hover { text-decoration: underline; }
 .btn-outline:hover { background: rgba(255, 255, 255, 0.12); }
 .btn-outline.light { border-color: rgba(255, 255, 255, 0.7); }
 
-/* ---------- Sections ---------- */
+/* ---------- Generic sections ----------
+   Every content band is a .section with 4rem of vertical breathing
+   room. .section-alt paints the alternating cream/dark tint so
+   neighboring sections are visually separated. .section-title is the
+   big heading with the orange underline; .section-text caps the
+   paragraph width for readability. */
 .section { padding: 4rem 0; }
 .section-alt { background: var(--bg-alt); }
 
@@ -236,7 +317,11 @@ a:hover { text-decoration: underline; }
 .section-text { max-width: 56rem; color: var(--muted); font-size: 1.05rem; }
 .section-text + .section-text { margin-top: 1rem; }
 
-/* ---------- Skills ---------- */
+/* ---------- 6. Skills ----------
+   .skills-grid: 3-column card grid (2 columns under 900px, 1 under
+   600px). Each .skill-card has an orange top border, a heading, and
+   a bullet list whose dots are drawn by li::before (the real list
+   markers are disabled). Depth meters live in block 7 below. */
 .skills-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -269,7 +354,11 @@ a:hover { text-decoration: underline; }
   background: var(--teal);
 }
 
-/* ---------- Experience ---------- */
+/* ---------- Experience (timeline) ----------
+   Each .job hangs on a left border that forms the timeline rail;
+   the ::before dot sits on that rail (offset left: -8px) aligned
+   with the job title. .job-meta is the date pill; .job-points is
+   the achievement bullet list. */
 .job {
   border-left: 3px solid var(--line);
   padding: 0.4rem 0 0.4rem 1.6rem;
@@ -317,7 +406,10 @@ a:hover { text-decoration: underline; }
 .job-points li { padding: 0.22rem 0; }
 .job-points strong { color: var(--ink); }
 
-/* ---------- Projects ---------- */
+/* ---------- Projects ----------
+   3-column grid of always-dark cards (--navy background in both
+   themes, a deliberate contrast piece). The Focus/Stack/Outcome
+   data rows inside each card are styled in block 7 (.project-meta). */
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -334,6 +426,7 @@ a:hover { text-decoration: underline; }
 .project-card h4 { color: #ffffff; font-size: 1.15rem; margin-bottom: 0.6rem; }
 .project-card p { font-size: 0.97rem; }
 
+/* Orange caps category line at the top of each project card. */
 .project-tag {
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -343,7 +436,9 @@ a:hover { text-decoration: underline; }
   margin-bottom: 0.7rem;
 }
 
-/* ---------- Education ---------- */
+/* ---------- Education ----------
+   Single card with a thick orange LEFT border (vs. the skill cards'
+   top border) to set credentials apart. Width-capped like body text. */
 .education-card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -356,7 +451,10 @@ a:hover { text-decoration: underline; }
 .education-card h4 { color: var(--heading); font-size: 1.18rem; margin-bottom: 0.5rem; }
 .education-card p { color: var(--muted); }
 
-/* ---------- Contact ---------- */
+/* ---------- Contact ----------
+   Closing band: dark ink-to-orange gradient, centered text, and a
+   centered wrapping row of the three contact buttons. Like the hero,
+   it uses fixed light colors because it is dark in both themes. */
 .section-contact {
   background: linear-gradient(135deg, var(--navy) 0%, #8a3c00 100%);
   color: #ffffff;
@@ -366,7 +464,8 @@ a:hover { text-decoration: underline; }
 .contact-inner p { color: #eadfc6; max-width: 38rem; margin: 0 auto; }
 .contact-links { margin-top: 1.9rem; display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
 
-/* ---------- Footer ---------- */
+/* ---------- Footer ----------
+   Simple centered bar, darker than the header, fixed colors. */
 .site-footer {
   background: #0d0a07;
   color: #b8a888;
@@ -375,7 +474,13 @@ a:hover { text-decoration: underline; }
   font-size: 0.9rem;
 }
 
-/* ---------- Data-analytical components ---------- */
+/* ---------- 7. Data-analytical components ----------
+   The components added for the "data view" of the resume. All of
+   them read the theme variables, so they restyle automatically
+   when the dark toggle flips — no dark-specific rules needed. */
+
+/* Small orange numbered label above each section title
+   (e.g. "02 · Metrics"). */
 .section-index {
   text-transform: uppercase;
   letter-spacing: 0.18em;
@@ -385,13 +490,17 @@ a:hover { text-decoration: underline; }
   margin-bottom: 0.35rem;
 }
 
+/* Secondary heading inside a section (e.g. "Competency Matrix"). */
 .subsection-title {
   color: var(--heading);
   font-size: 1.25rem;
   margin: 2.6rem 0 1rem;
 }
 
-/* Role snapshot (hero side card) */
+/* Role Snapshot (the hero's side card). .snapshot switches the
+   inherited .hero-card grid back to a simple block; rows of
+   .snapshot-list are term/value pairs (label column 5.2rem, value
+   fills the rest); .snapshot-tags are the skill pills under it. */
 .snapshot { display: block; }
 .snapshot-title {
   font-size: 0.85rem;
@@ -420,7 +529,8 @@ a:hover { text-decoration: underline; }
   border-radius: 999px;
 }
 
-/* KPI band */
+/* KPI band ("By the Numbers"): 3-column grid of metric cards —
+   big accent number (.kpi-number), bold label, muted note. */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -443,7 +553,10 @@ a:hover { text-decoration: underline; }
 .kpi-label { display: block; font-weight: 700; color: var(--heading); margin-top: 0.55rem; }
 .kpi-note { display: block; font-size: 0.88rem; color: var(--muted); margin-top: 0.15rem; }
 
-/* Skill depth meters */
+/* Skill depth meters: five equal segments in a flex row. A segment
+   is pale (--line) by default and orange when it also has class "on".
+   The rating lives entirely in the HTML — count the "on" segments.
+   .meter-label is the caption under the bar ("Depth 4/5 · …"). */
 .meter { display: flex; gap: 5px; margin-top: 1.1rem; }
 .meter .seg {
   flex: 1;
@@ -454,7 +567,12 @@ a:hover { text-decoration: underline; }
 .meter .seg.on { background: var(--teal); }
 .meter-label { font-size: 0.83rem; font-weight: 700; color: var(--accent); margin-top: 0.5rem; }
 
-/* Competency matrix */
+/* Competency matrix table: dark header row, zebra-striped body
+   (even rows get --bg-alt), bold first column. min-width 720px keeps
+   the columns readable; .table-wrap scrolls it horizontally on
+   smaller screens instead of squeezing it. .ctx pills mark where a
+   competency was applied: .ctx-work = solid (employer), .ctx-lab =
+   outline (self-directed). .table-note is the footnote under it. */
 .table-wrap { overflow-x: auto; border-radius: var(--radius); box-shadow: var(--shadow); }
 table.matrix {
   width: 100%;
@@ -494,7 +612,9 @@ table.matrix {
 
 .table-note { font-size: 0.85rem; color: var(--muted); margin-top: 0.8rem; font-style: italic; }
 
-/* Project data rows */
+/* Project data rows: a definition list at the foot of each project
+   card, separated by a hairline — label column (dt, small orange
+   caps) + value column (dd). Rows in HTML: Focus / Stack / Outcome. */
 .project-meta { margin-top: 1.1rem; border-top: 1px solid rgba(255, 255, 255, 0.22); padding-top: 0.9rem; display: grid; gap: 0.45rem; }
 .project-meta div { display: grid; grid-template-columns: 4.4rem 1fr; gap: 0.7rem; }
 .project-meta dt {
@@ -507,7 +627,14 @@ table.matrix {
 }
 .project-meta dd { font-size: 0.92rem; color: #f3ead9; }
 
-/* ---------- Responsive ---------- */
+/* ---------- 8. Responsive ----------
+   Two breakpoints, in shrinking order so the smaller one wins.
+   900px (tablets): the hero stacks to one column and the 3-column
+   card grids drop to 2 columns; the name shrinks to 2.4rem.
+   600px (phones): all grids go single-column, the nav stacks
+   vertically, sections get less padding, base font drops to 16px.
+   Keep this block LAST in the file: equal-specificity rules that
+   come later override the desktop rules above. */
 @media (max-width: 900px) {
   .hero-grid { grid-template-columns: 1fr; }
   .skills-grid, .projects-grid, .kpi-grid { grid-template-columns: repeat(2, 1fr); }
